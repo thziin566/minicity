@@ -34,6 +34,8 @@ local espNameEnabled = false
 local espPeopleEnabled = false
 local noClipEnabled = false
 local hitBoxEnabled = false
+local teleportPlayerEnabled = false
+local autoCLEnabled = false
 
 -- Função para minimizar o menu
 local function MinimizeMenu()
@@ -148,6 +150,20 @@ createToggleButton("Hit Box", 0.5, function()
 end, function()
     hitBoxEnabled = false
     -- Remover aumento de Hit Box aqui
+end)
+
+createToggleButton("Teleporte Player", 0.6, function()
+    teleportPlayerEnabled = true
+    -- Implementar teleporte para o jogador mais próximo aqui
+end, function()
+    teleportPlayerEnabled = false
+end)
+
+createToggleButton("Auto CL", 0.7, function()
+    autoCLEnabled = true
+    -- Implementar remoção de morte do jogo aqui
+end, function()
+    autoCLEnabled = false
 end)
 
 -- Sistema de chave para desbloquear o menu
