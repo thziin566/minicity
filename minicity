@@ -1,0 +1,190 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+-- Criar GUI do Menu
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local MenuFrame = Instance.new("Frame", ScreenGui)
+local MinimizeButton = Instance.new("TextButton", MenuFrame)
+local CreditsLabel = Instance.new("TextLabel", MenuFrame)
+
+-- Estilização do Menu (Forma Quadrada)
+MenuFrame.Size = UDim2.new(0, 400, 0, 400)
+MenuFrame.Position = UDim2.new(0.5, -200, 0.5, -200)
+MenuFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+
+-- Botão para minimizar
+MinimizeButton.Size = UDim2.new(0, 100, 0, 50)
+MinimizeButton.Position = UDim2.new(0.5, -50, 0, 0)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.Text = "Minimizar"
+
+-- Label de créditos
+CreditsLabel.Size = UDim2.new(1, 0, 0, 50)
+CreditsLabel.Position = UDim2.new(0, 0, 0.9, 0)
+CreditsLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+CreditsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditsLabel.Text = "Creditos: SACOLA e THVEZEIRA"
+CreditsLabel.TextScaled = true
+
+-- Variáveis para estado das funções
+local speedEnabled = false
+local espNameEnabled = false
+local espPeopleEnabled = false
+local noClipEnabled = false
+local hitBoxEnabled = false
+
+-- Função para minimizar o menu
+local function MinimizeMenu()
+    MenuFrame.Visible = not MenuFrame.Visible
+end
+
+MinimizeButton.MouseButton1Click:Connect(MinimizeMenu)
+
+-- Função de Teleporte
+local function TeleportTo(location)
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(location)
+    end
+end
+
+-- Criar botões de teleporte
+local TeleportButtonData = {
+    {name = "Prédio", position = Vector3.new(-1888.3, 4.8, 377.2)},
+    {name = "Casa Pescaria", position = Vector3.new(-1205.7, 79.1, -391.0)},
+    {name = "Gas/Lixo", position = Vector3.new(-441.9, 5.3, -31.0)},
+    {name = "Fazenda", position = Vector3.new(778.8, 4.8, -101.1)},
+    {name = "Pm", position = Vector3.new(-839.3, 12.2, 459.0)},
+    {name = "Praça", position = Vector3.new(-287.4, 4.8, 338.5)},
+    {name = "Plantas", position = Vector3.new(12022.6, 27.3, 12796.3)},
+    {name = "Lavagem", position = Vector3.new(19830.8, 66.5, 13142.8)},
+}
+
+local yOffset = 0.3
+for i, data in ipairs(TeleportButtonData) do
+    local TeleportButton = Instance.new("TextButton", MenuFrame)
+    TeleportButton.Size = UDim2.new(0, 100, 0, 50)
+    TeleportButton.Position = UDim2.new(0.5, -50, 0.2 + yOffset * i, 0)
+    TeleportButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    TeleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TeleportButton.Text = data.name
+
+    TeleportButton.MouseButton1Click:Connect(function()
+        TeleportTo(data.position)
+    end)
+end
+
+-- Criar botões para funcionalidades
+local function createToggleButton(name, position, onActivate, onDeactivate)
+    local toggleButton = Instance.new("TextButton", MenuFrame)
+    toggleButton.Size = UDim2.new(0, 100, 0, 50)
+    toggleButton.Position = UDim2.new(0.5, -50, position)
+    toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleButton.Text = name
+
+    toggleButton.MouseButton1Click:Connect(function()
+        if toggleButton.BackgroundColor3 == Color3.fromRGB(255, 0, 0) then
+            toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Ativar
+            onActivate()
+        else
+            toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Desativar
+            onDeactivate()
+        end
+    end)
+end
+
+-- Funções para ativar/desativar funcionalidades
+createToggleButton("Velocidade", 0.1, function()
+    speedEnabled = true
+    LocalPlayer.Character.Humanoid.WalkSpeed = 50
+end, function()
+    speedEnabled = false
+    LocalPlayer.Character.Humanoid.WalkSpeed = 16
+end)
+
+createToggleButton("ESP Nome", 0.2, function()
+    espNameEnabled = true
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local highlight = Instance.new("Highlight", player.Character)
+            highlight.Adornee = player.Character
+            highlight.FillColor = Color3.new(0, 0, 1) -- Azul para ESP
+        end
+    end
+end, function()
+    espNameEnabled = false
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            for _, highlight in ipairs(player.Character:GetChildren()) do
+                if highlight:IsA("Highlight") then
+                    highlight:Destroy()
+                end
+            end
+        end
+    end
+end)
+
+createToggleButton("ESP Pessoas", 0.3, function()
+    espPeopleEnabled = true
+    -- Implementar funcionalidade de ESP de pessoas aqui
+end, function()
+    espPeopleEnabled = false
+    -- Remover ESP de pessoas aqui
+end)
+
+createToggleButton("No Clip", 0.4, function()
+    noClipEnabled = true
+    -- Implementar funcionalidade de No Clip aqui
+end, function()
+    noClipEnabled = false
+    -- Remover No Clip aqui
+end)
+
+createToggleButton("Hit Box", 0.5, function()
+    hitBoxEnabled = true
+    -- Implementar aumento de Hit Box aqui
+end, function()
+    hitBoxEnabled = false
+    -- Remover aumento de Hit Box aqui
+end)
+
+-- Sistema de chave para desbloquear o menu
+local keyInputBox = Instance.new("TextBox", MenuFrame)
+keyInputBox.Size = UDim2.new(0, 200, 0, 50)
+keyInputBox.Position = UDim2.new(0.5, -100, 0.1, 0)
+keyInputBox.PlaceholderText = "Digite a chave"
+
+local unlockButton = Instance.new("TextButton", MenuFrame)
+unlockButton.Size = UDim2.new(0, 100, 0, 50)
+unlockButton.Position = UDim2.new(0.5, -50, 0.2, 0)
+unlockButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+unlockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+unlockButton.Text = "Desbloquear"
+
+unlockButton.MouseButton1Click:Connect(function()
+    if keyInputBox.Text == "123" then
+        MenuFrame.Visible = true
+        keyInputBox.Visible = false
+        unlockButton.Visible = false
+    else
+        print("Chave incorreta!")
+    end
+end)
+
+-- Proteção contra exploits (exemplo básico)
+local function protectAgainstExploits()
+    if not game:IsLoaded() then return end
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    char:WaitForChild("Humanoid").Died:Connect(function()
+        -- Ação a ser tomada quando o jogador morrer.
+    end)
+end
+
+protectAgainstExploits()
+
+-- Carregar script adicional
+loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
+
+print("✅ Menu 'SONIC MENU PAGO' criado com sucesso!")
